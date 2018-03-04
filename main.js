@@ -35,7 +35,11 @@ Apify.main(async () => {
     const $ = cheerio.load(html);
 
     // Get verb conjugation list
-    let results = [];
+    let results = [{
+        form: 'infinitif',
+        tense: '',
+        conjugation: input.query
+    }];
 
     const getConjugation = (e) => {
         const conj = $(e).find('td').text().trim();
