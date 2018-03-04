@@ -1,4 +1,5 @@
 {
     "source": "french",
-    "query": "passer"
+    "query": "passer",
+    "dictionary": "english-french"
 }

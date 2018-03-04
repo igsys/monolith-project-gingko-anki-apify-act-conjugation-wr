@@ -26,7 +26,7 @@ Apify.main(async () => {
     const launchPuppeteer = process.env.NODE_ENV === 'development' ? puppeteer.launch : Apify.launchPuppeteer;
 
     // Navigate to page
-    const uri = `http://www.wordreference.com/conj/FrVerbs.aspx?v=${input.query}`
+    const uri = `https://www.wordreference.com/conj/FrVerbs.aspx?v=${input.query}`
     const browser = await launchPuppeteer();
     const page = await browser.newPage();
     await page.goto(uri);
