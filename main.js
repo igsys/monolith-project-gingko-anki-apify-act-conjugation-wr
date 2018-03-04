@@ -37,7 +37,7 @@ Apify.main(async () => {
     // Get verb conjugation list
     let results = [{
         form: 'infinitif',
-        tense: '',
+        tense: 'présent',
         conjugation: input.query
     }];
 
