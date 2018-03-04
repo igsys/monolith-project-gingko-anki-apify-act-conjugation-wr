@@ -44,7 +44,7 @@ Apify.main(async () => {
         return extracted === null ? conj : extracted[1];
     }
 
-    // extracting from tables
+    // extracting from table
     $('.aa').each((i, elem) => {
         const form = $(elem).find('h4').text().trim()
         $(elem).find('tbody').each((j, elem2) => {
