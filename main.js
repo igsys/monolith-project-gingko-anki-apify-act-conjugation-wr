@@ -2,7 +2,6 @@ const Apify = require('apify');
 const typeCheck = require('type-check').typeCheck;
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
-const uniq = require('lodash').uniq
 
 // Definition of the input
 const INPUT_TYPE = `{
