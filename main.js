@@ -24,26 +24,42 @@ Apify.main(async () => {
 
     // Environment variables
     const launchPuppeteer = process.env.NODE_ENV === 'development' ? puppeteer.launch : Apify.launchPuppeteer;
-
-    // Navigate to page
-    const uri = `https://www.wordreference.com/conj/FrVerbs.aspx?v=${input.query}`
     const browser = await launchPuppeteer();
+
+    // Navigate to Reverso Conjugation
+    const uri = `http://conjugator.reverso.net/conjugation-${input.source}-verb-${input.query}.html`
     const page = await browser.newPage();
     await page.goto(uri);
-
     let html = await page.content();
-    const $ = cheerio.load(html);
+    let $ = cheerio.load(html);
+
+    let results = [
+        {
+            form: 'infinitif',
+            tense: 'présent',
+            conjugation: input.query
+        }, {
+            form: 'participe présent',
+            tense: 'présent',
+            conjugation: $('.verb-forms-wrap a').eq(1).text().trim()
+        }, {
+            form: 'participe passé',
+            tense: 'passé',
+            conjugation: $('.verb-forms-wrap a').eq(2).text().trim()
+        }
+    ];
+
+    // Navigate to Word Reference Conjugation
+    const uri2 = `https://www.wordreference.com/conj/FrVerbs.aspx?v=${input.query}`
+    const page2 = await browser.newPage();
+    await page2.goto(uri2);
+    html = await page2.content();
+    $ = cheerio.load(html);
 
     // Get verb conjugation list
-    let results = [{
-        form: 'infinitif',
-        tense: 'présent',
-        conjugation: input.query
-    }];
-
     const getConjugation = (e) => {
         const conj = $(e).find('td').text().trim();
-        const regex = new RegExp(/(.*?)\(.*/g);
+        const regex = new RegExp(/(.*?)\(.*/);
         const extracted = regex.exec(conj);
         return extracted === null ? conj : extracted[1];
     }
@@ -69,7 +85,7 @@ Apify.main(async () => {
 
     // Here's the place for your magic...
     console.log(`Input query: ${input.query}`);
-    console.log('Results: ', results)
+    // console.log('Results: ', results)
 
     // Store the output
     const output = {
