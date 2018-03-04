@@ -27,7 +27,6 @@ Apify.main(async () => {
     const launchPuppeteer = process.env.NODE_ENV === 'development' ? puppeteer.launch : Apify.launchPuppeteer;
 
     // Navigate to page
-    // const uri = `http://conjugator.reverso.net/conjugation-${input.source}-verb-${input.query}.html`
     const uri = `http://www.wordreference.com/conj/FrVerbs.aspx?v=${input.query}`
     const browser = await launchPuppeteer();
     const page = await browser.newPage();
@@ -39,35 +38,26 @@ Apify.main(async () => {
     // Get verb conjugation list
     let results = [];
 
-    // $('.verbtxt').each((i, elem) => {
-    //     const txt = $(elem).text().trim();
-    //     const splitted = txt.split('/');
-    //     results = results.concat(splitted);
-    // });
+    const getConjugation = (e) => {
+        const conj = $(e).find('td').text().trim();
+        const regex = new RegExp(/(.*?)\(.*/g);
+        const extracted = regex.exec(conj);
+        return extracted === null ? conj : extracted[1];
+    }
 
     $('.aa').each((i, elem) => {
         const form = $(elem).find('h4').text().trim()
-        // $(elem).find('tr').each((j, elem2) => {
-        //     const tense = $(elem2).eq(0).text().trim()
-        //     // Do not add first <tr> tag, that indicates the tense
-        //     j == 0 ?
-        //         null :
-        //         results.push({
-        //             form,
-        //             tense,
-        //             conjugation: $(elem2).eq(j).text().trim()
-        //         })
-        // })
         $(elem).find('tbody').each((j, elem2) => {
             const tense = $(elem2).find('tr').eq(0).text().trim();
             $(elem2).find('tr').each((k, elem3) => {
                 // Do not add first <tr> tag, that indicates the tense
-                k == 0 ?
+                const conjugation = getConjugation(elem3);
+                k === 0 || conjugation === '–' ?
                     null :
                     results.push({
                         form,
                         tense,
-                        conjugation: $(elem3).find('td').text().trim()
+                        conjugation
                     })
             })
         })
@@ -75,7 +65,6 @@ Apify.main(async () => {
 
     // Here's the place for your magic...
     console.log(`Input query: ${input.query}`);
-    // console.log('Result: ', uniq(results));
     console.log('Results: ', results)
 
     // Store the output
@@ -83,8 +72,8 @@ Apify.main(async () => {
         name: 'apify/igsys/conjugation-wr',
         crawledAt: new Date(),
         input,
+        uri,
         results,
-        // conjugation: uniq(results)
     };
     await Apify.setValue('OUTPUT', output)
 });
