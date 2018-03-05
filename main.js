@@ -35,17 +35,20 @@ Apify.main(async () => {
 
     let results = [
         {
-            form: 'infinitif',
+            // form: 'infinitif',
+            form: 'inf',
             tense: '',
             pronoun: '',
             conjugation: input.query
         }, {
-            form: 'participe présent',
+            // form: 'participe présent',
+            form: 'par-pré',
             tense: '',
             pronoun: '',
             conjugation: $('.verb-forms-wrap a').eq(1).text().trim()
         }, {
-            form: 'participe passé',
+            // form: 'participe passé',
+            form: 'par-pas',
             tense: '',
             pronoun: '',
             conjugation: $('.verb-forms-wrap a').eq(2).text().trim()
@@ -60,11 +63,40 @@ Apify.main(async () => {
     $ = cheerio.load(html);
 
     // Get verb conjugation list
+    // https://www.wordreference.com/conj/FrVerbs.aspx?v=passer
+    // TODO: ignored the plural forms and imperatif, need to consider rules for (e) / (e)s / (e)(s) / !
     const getConjugation = (e) => {
-        const conj = $(e).find('td').text().trim();
-        const regex = new RegExp(/(.*?)\(.*/);
-        const extracted = regex.exec(conj);
-        return extracted === null ? conj : extracted[1];
+        const conj = $(e).find('td').text().trim()
+        // console.log('getConjugation:conj', conj)
+        const regex = new RegExp(/(.*?)\(.*/)
+        const extracted = regex.exec(conj)
+        // extracted ? null : console.log('getConjugation:extracted', extracted[1])
+        return extracted ? conj : extracted[1]
+    }
+
+    const getConjugations = e => {
+        const conj = $(e).find('td').text().replace('!', '').trim()
+        // console.log('getConjugation():conj', conj)
+        const regex = new RegExp(/(.*?)\(.*/)
+        const extracted = regex.exec(conj)
+        // extracted === null ? null : console.log('getConjugation():extracted', extracted[1])
+        const output = []
+        if (conj.includes('(e)(s)') && extracted !== null) {
+            output.push(`${extracted[1]}`)
+            output.push(`${extracted[1]}e`)
+            output.push(`${extracted[1]}s`)
+            output.push(`${extracted[1]}es`)
+        }
+        if (conj.includes('(e)s') && extracted !== null) {
+            output.push(`${extracted[1]}s`)
+            output.push(`${extracted[1]}es`)
+        }
+        if (conj.includes('(e)') && extracted !== null) {
+            output.push(`${extracted[1]}`)
+            output.push(`${extracted[1]}e`)
+        }
+        // console.log('getConjugation():output', output)
+        return output
     }
 
     const pronoun = {
@@ -76,22 +108,65 @@ Apify.main(async () => {
         6: '3p',
     }
 
+    const getForm = form => {
+        switch (form) {
+            case 'indicatif': return 'ind'
+            case 'formes composées / compound tenses': return 'cmp'
+            case 'subjonctif': return 'sbj'
+            case 'conditionnel': return 'cnd'
+            case 'impératif': return 'imp'
+            default: return form
+        }
+    }
+
+    const getTense = tense => {
+        switch (tense) {
+            case 'présent': return 'pré'
+            case 'imparfait': return 'impar'
+            case 'passé simple': return 'pas-sim'
+            case 'futur simple': return 'fut-sim'
+            case 'passé composé': return 'pas-cmp'
+            case 'plus-que-parfait': return 'plus-que'
+            case 'passé antérieur': return 'pas-ant'
+            case 'futur antérieur': return 'fut-ant'
+            case 'passé': return 'pas'
+            case 'passé II': return 'pasII'
+            default: return tense
+        }
+    }
+
     // extracting from table
     $('.aa').each((i, elem) => {
         const form = $(elem).find('h4').text().trim()
+        // second loop
         $(elem).find('tbody').each((j, elem2) => {
             const tense = $(elem2).find('tr').eq(0).text().trim();
+            // third loop
             $(elem2).find('tr').each((k, elem3) => {
-                // Do not add first <tr> tag, that indicates the tense
-                const conjugation = getConjugation(elem3);
-                k === 0 || conjugation === '–' ?
+                // return array of conjugations with all possibilities
+                // const conjugation = getConjugation(elem3);
+                const conjugations = getConjugations(elem3);
+                console.log('each():conjugations', conjugations)
+                // k === 0 : Do not add first <tr> tag that indicates tense, or empty value '–'
+                // k === 0 || conjugation === '–' ?
+                k === 0 ?
                     null :
-                    results.push({
-                        form,
-                        tense,
-                        pronoun: pronoun[k],
-                        conjugation,
+                    conjugations.forEach(conj => {
+                        results.push({
+                            form: getForm(form),
+                            tense: getTense(tense),
+                            pronoun: pronoun[k],
+                            conjugation: conj
+                        })
                     })
+                // k === 0 || conjugation === '–' ?
+                //     null :
+                //     results.push({
+                //         form: getForm(form),
+                //         tense: getTense(tense),
+                //         pronoun: pronoun[k],
+                //         conjugation,
+                //     })
             })
         })
     });
