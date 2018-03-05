@@ -37,14 +37,17 @@ Apify.main(async () => {
         {
             form: 'infinitif',
             tense: 'présent',
+            pronoun: '',
             conjugation: input.query
         }, {
             form: 'participe présent',
             tense: 'présent',
+            pronoun: '',
             conjugation: $('.verb-forms-wrap a').eq(1).text().trim()
         }, {
             form: 'participe passé',
             tense: 'passé',
+            pronoun: '',
             conjugation: $('.verb-forms-wrap a').eq(2).text().trim()
         }
     ];
