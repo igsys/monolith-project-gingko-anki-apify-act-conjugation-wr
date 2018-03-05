@@ -39,18 +39,21 @@ Apify.main(async () => {
             form: 'inf',
             tense: '',
             pronoun: '',
+            gender: 'm',
             conjugation: input.query
         }, {
             // form: 'participe présent',
             form: 'par-pré',
             tense: '',
             pronoun: '',
+            gender: 'm',
             conjugation: $('.verb-forms-wrap a').eq(1).text().trim()
         }, {
             // form: 'participe passé',
             form: 'par-pas',
             tense: '',
             pronoun: '',
+            gender: 'm',
             conjugation: $('.verb-forms-wrap a').eq(2).text().trim()
         }
     ];
@@ -72,21 +75,23 @@ Apify.main(async () => {
         const extracted = regex.exec(conj)
         // extracted === null ? null : console.log('getConjugation():extracted', extracted[1])
         const output = []
+        if (!conj.includes('(e)s') && extracted === null) output.push({ conj, gender: 'm' })
+        // console.log(conj.includes('(e)s'))
         if (conj.includes('(e)(s)') && extracted !== null) {
-            output.push(`${extracted[1]}`)
-            output.push(`${extracted[1]}e`)
-            output.push(`${extracted[1]}s`)
-            output.push(`${extracted[1]}es`)
+            output.push({ conj: `${extracted[1]}`, gender: 'm' })
+            output.push({ conj: `${extracted[1]}e`, gender: 'f' })
+            output.push({ conj: `${extracted[1]}s`, gender: 'm' })
+            output.push({ conj: `${extracted[1]}es`, gender: 'f' })
         }
         if (conj.includes('(e)s') && extracted !== null) {
-            output.push(`${extracted[1]}s`)
-            output.push(`${extracted[1]}es`)
+            output.push({ conj: `${extracted[1]}s`, gender: 'm' })
+            output.push({ conj: `${extracted[1]}es`, gender: 'f' })
         }
         if (conj.includes('(e)') && extracted !== null) {
-            output.push(`${extracted[1]}`)
-            output.push(`${extracted[1]}e`)
+            output.push({ conj: `${extracted[1]}`, gender: 'm' })
+            output.push({ conj: `${extracted[1]}e`, gender: 'f' })
         }
-        // console.log('getConjugation():output', output)
+        console.log('getConjugation():output', output)
         return output
     }
 
@@ -140,12 +145,14 @@ Apify.main(async () => {
                 // k === 0 : Do not add first <tr> tag that indicates tense
                 k === 0 ?
                     null :
-                    conjugations.forEach(conj => {
-                        results.push({
+                    conjugations.forEach(item => {
+                        // only return results if there is an entry, not '–'
+                        item.conj === '–' ? null : results.push({
                             form: getForm(form),
                             tense: getTense(tense),
                             pronoun: pronoun[k],
-                            conjugation: conj
+                            gender: item.gender,
+                            conjugation: item.conj
                         })
                     })
             })
