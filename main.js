@@ -64,16 +64,7 @@ Apify.main(async () => {
 
     // Get verb conjugation list
     // https://www.wordreference.com/conj/FrVerbs.aspx?v=passer
-    // TODO: ignored the plural forms and imperatif, need to consider rules for (e) / (e)s / (e)(s) / !
-    const getConjugation = (e) => {
-        const conj = $(e).find('td').text().trim()
-        // console.log('getConjugation:conj', conj)
-        const regex = new RegExp(/(.*?)\(.*/)
-        const extracted = regex.exec(conj)
-        // extracted ? null : console.log('getConjugation:extracted', extracted[1])
-        return extracted ? conj : extracted[1]
-    }
-
+    // NOTE: considered imperatif / feminine / plural forms, (e) / (e)s / (e)(s) / !
     const getConjugations = e => {
         const conj = $(e).find('td').text().replace('!', '').trim()
         // console.log('getConjugation():conj', conj)
@@ -144,11 +135,9 @@ Apify.main(async () => {
             // third loop
             $(elem2).find('tr').each((k, elem3) => {
                 // return array of conjugations with all possibilities
-                // const conjugation = getConjugation(elem3);
                 const conjugations = getConjugations(elem3);
-                console.log('each():conjugations', conjugations)
-                // k === 0 : Do not add first <tr> tag that indicates tense, or empty value '–'
-                // k === 0 || conjugation === '–' ?
+                // console.log('each():conjugations', conjugations)
+                // k === 0 : Do not add first <tr> tag that indicates tense
                 k === 0 ?
                     null :
                     conjugations.forEach(conj => {
@@ -159,14 +148,6 @@ Apify.main(async () => {
                             conjugation: conj
                         })
                     })
-                // k === 0 || conjugation === '–' ?
-                //     null :
-                //     results.push({
-                //         form: getForm(form),
-                //         tense: getTense(tense),
-                //         pronoun: pronoun[k],
-                //         conjugation,
-                //     })
             })
         })
     });
