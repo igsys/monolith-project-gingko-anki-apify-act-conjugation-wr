@@ -64,6 +64,15 @@ Apify.main(async () => {
         return extracted === null ? conj : extracted[1];
     }
 
+    const pronoun = {
+        1: '1s',
+        2: '2s',
+        3: '3s',
+        4: '1p',
+        5: '2p',
+        6: '3p',
+    }
+
     // extracting from table
     $('.aa').each((i, elem) => {
         const form = $(elem).find('h4').text().trim()
@@ -77,7 +86,8 @@ Apify.main(async () => {
                     results.push({
                         form,
                         tense,
-                        conjugation
+                        pronoun: pronoun[k],
+                        conjugation,
                     })
             })
         })
