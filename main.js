@@ -7,7 +7,7 @@ const cheerio = require('cheerio');
 const INPUT_TYPE = `{
     source: String,
     query: String,
-    dictionary: Maybe String,
+    translation: Maybe String,
 }`;
 
 Apify.main(async () => {
