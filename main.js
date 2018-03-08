@@ -39,21 +39,21 @@ Apify.main(async () => {
             form: 'inf',
             tense: '',
             pronoun: '',
-            gender: 'none',
+            gender: 'unknown',
             conjugation: input.query
         }, {
             // form: 'participe présent',
             form: 'par-pré',
             tense: '',
             pronoun: '',
-            gender: 'none',
+            gender: 'unknown',
             conjugation: $('.verb-forms-wrap a').eq(1).text().trim()
         }, {
             // form: 'participe passé',
             form: 'par-pas',
             tense: '',
             pronoun: '',
-            gender: 'none',
+            gender: 'unknown',
             conjugation: $('.verb-forms-wrap a').eq(2).text().trim()
         }
     ];
@@ -75,20 +75,20 @@ Apify.main(async () => {
         const extracted = regex.exec(conj)
         // extracted === null ? null : console.log('getConjugation():extracted', extracted[1])
         const output = []
-        if (!conj.includes('(e)s') && extracted === null) output.push({ conj, gender: 'none' })
+        if (!conj.includes('(e)s') && extracted === null) output.push({ conj, gender: 'unknown' })
         // console.log(conj.includes('(e)s'))
         if (conj.includes('(e)(s)') && extracted !== null) {
-            output.push({ conj: `${extracted[1]}`, gender: 'none' })
+            output.push({ conj: `${extracted[1]}`, gender: 'unknown' })
             output.push({ conj: `${extracted[1]}e`, gender: 'f' })
-            output.push({ conj: `${extracted[1]}s`, gender: 'none' })
+            output.push({ conj: `${extracted[1]}s`, gender: 'unknown' })
             output.push({ conj: `${extracted[1]}es`, gender: 'f' })
         }
         if (conj.includes('(e)s') && extracted !== null) {
-            output.push({ conj: `${extracted[1]}s`, gender: 'none' })
+            output.push({ conj: `${extracted[1]}s`, gender: 'unknown' })
             output.push({ conj: `${extracted[1]}es`, gender: 'f' })
         }
         if (conj.includes('(e)') && extracted !== null) {
-            output.push({ conj: `${extracted[1]}`, gender: 'none' })
+            output.push({ conj: `${extracted[1]}`, gender: 'unknown' })
             output.push({ conj: `${extracted[1]}e`, gender: 'f' })
         }
         console.log('getConjugation():output', output)
